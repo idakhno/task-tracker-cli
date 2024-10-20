@@ -5,14 +5,14 @@ A simple command-line interface (CLI) application to track and manage your tasks
 - [🚀 Features](#-features)
 - [⚙️ Task Properties](#-task-properties)
 - [🛠️ Requirements](#-requirements)
-- [Usage](#usage)
+- [📢 Usage](#usage)
     - [✔️ Adding a New Task](#adding-a-new-task)
     - [✔️ Updating and Deleting Tasks](#updating-and-deleting-tasks)
     - [✔️ Marking a Task as In Progress or Done](#marking-a-task-as-in-progress-or-done)
     - [✔️ Listing All Tasks](#listing-all-tasks)
     - [✔️ Listing Tasks by Status](#listing-tasks-by-status)
 - [💾 Installation](#installation)
-- [👋 Contributing](#contributing)
+- [🤝 Contributing](#contributing)
 - [©️ License](#license)
 
 ## 🚀 Features
@@ -35,7 +35,7 @@ Each task has the following properties:
 - Use the native file system module for file interaction.
 - Handle errors and edge cases gracefully.
 
-## Usage
+## 📢 Usage
 ### ✔️ Adding a New Task
 ```
 task-tracker-cli add "Buy groceries"
@@ -79,7 +79,7 @@ Run the application:
 go run task_tracker.go
 ```
 
-## 👋 Contributing
+## 🤝 Contributing
 Feel free to submit issues or pull requests.
 
 ## ©️ License
