@@ -1,6 +1,9 @@
 # Task Tracker CLI
 A simple command-line interface (CLI) application to track and manage your tasks. This project helps you practice programming skills, including file system interaction, user input handling, and building a CLI application.
 
+Project URL:
+https://roadmap.sh/projects/task-tracker
+
 ## 📚 Table of Contents
 - [🚀 Features](#-features)
 - [⚙️ Task Properties](#-task-properties)
