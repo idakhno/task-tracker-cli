@@ -1,12 +1,27 @@
 package task
 
-import "time"
+import (
+	"errors"
+	"strings"
+	"time"
+)
 
 // Task status constants define the valid states a task can be in.
 const (
 	StatusNotDone    = "not_done"
 	StatusInProgress = "in_progress"
 	StatusDone       = "done"
+)
+
+const (
+	MaxDescriptionLength = 1000
+	MinDescriptionLength = 1
+)
+
+var (
+	ErrEmptyDescription   = errors.New("task description cannot be empty")
+	ErrDescriptionTooLong = errors.New("task description exceeds maximum length")
+	ErrInvalidID          = errors.New("task ID must be positive")
 )
 
 // Task represents a single task with its metadata.
@@ -19,8 +34,16 @@ type Task struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-// New creates a new task with the given description
-func New(id int, description string) *Task {
+// New creates a new task with the given description.
+// Returns an error if the description is invalid.
+func New(id int, description string) (*Task, error) {
+	if err := ValidateDescription(description); err != nil {
+		return nil, err
+	}
+	if id <= 0 {
+		return nil, ErrInvalidID
+	}
+
 	now := time.Now()
 	return &Task{
 		ID:          id,
@@ -28,14 +51,31 @@ func New(id int, description string) *Task {
 		Status:      StatusNotDone,
 		CreatedAt:   now,
 		UpdatedAt:   now,
+	}, nil
+}
+
+// ValidateDescription checks if a task description is valid.
+func ValidateDescription(description string) error {
+	trimmed := strings.TrimSpace(description)
+	if len(trimmed) < MinDescriptionLength {
+		return ErrEmptyDescription
 	}
+	if len(trimmed) > MaxDescriptionLength {
+		return ErrDescriptionTooLong
+	}
+	return nil
 }
 
 // UpdateDescription updates the task description and automatically
 // updates the UpdatedAt timestamp to track when the change occurred.
-func (t *Task) UpdateDescription(description string) {
-	t.Description = description
+// Returns an error if the description is invalid.
+func (t *Task) UpdateDescription(description string) error {
+	if err := ValidateDescription(description); err != nil {
+		return err
+	}
+	t.Description = strings.TrimSpace(description)
 	t.UpdatedAt = time.Now()
+	return nil
 }
 
 // MarkInProgress transitions the task to in-progress status and
@@ -56,4 +96,3 @@ func (t *Task) MarkDone() {
 func IsStatusValid(status string) bool {
 	return status == StatusNotDone || status == StatusInProgress || status == StatusDone
 }
-

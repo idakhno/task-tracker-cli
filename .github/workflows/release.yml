@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+
+      - name: Build for Linux
+        env:
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-X main.version=${GITHUB_REF#refs/tags/} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ) -X main.gitCommit=${GITHUB_SHA}" -o task-tracker-linux-amd64 ./cmd/task-tracker
+
+      - name: Build for Windows
+        env:
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-X main.version=${GITHUB_REF#refs/tags/} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ) -X main.gitCommit=${GITHUB_SHA}" -o task-tracker-windows-amd64.exe ./cmd/task-tracker
+
+      - name: Build for macOS (amd64)
+        env:
+          GOOS: darwin
+          GOARCH: amd64
+        run: |
+          go build -ldflags "-X main.version=${GITHUB_REF#refs/tags/} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ) -X main.gitCommit=${GITHUB_SHA}" -o task-tracker-darwin-amd64 ./cmd/task-tracker
+
+      - name: Build for macOS (arm64)
+        env:
+          GOOS: darwin
+          GOARCH: arm64
+        run: |
+          go build -ldflags "-X main.version=${GITHUB_REF#refs/tags/} -X main.buildTime=$(date -u +%Y-%m-%dT%H:%M:%SZ) -X main.gitCommit=${GITHUB_SHA}" -o task-tracker-darwin-arm64 ./cmd/task-tracker
+
+      - name: Create release archive
+        run: |
+          mkdir -p release
+          tar -czf release/task-tracker-linux-amd64.tar.gz task-tracker-linux-amd64
+          zip release/task-tracker-windows-amd64.zip task-tracker-windows-amd64.exe
+          tar -czf release/task-tracker-darwin-amd64.tar.gz task-tracker-darwin-amd64
+          tar -czf release/task-tracker-darwin-arm64.tar.gz task-tracker-darwin-arm64
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

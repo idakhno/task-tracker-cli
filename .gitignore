@@ -10,6 +10,7 @@
 
 # Output of the go coverage tool
 *.out
+coverage
 
 # Dependency directories
 vendor/
@@ -27,4 +28,7 @@ go.work
 # OS
 .DS_Store
 Thumbs.db
+
+# Application data
+tasks.json
 

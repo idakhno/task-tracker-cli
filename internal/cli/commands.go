@@ -66,8 +66,16 @@ func (c *CLI) handleAdd(args []string) error {
 		return fmt.Errorf("usage: task-tracker-cli add <description>")
 	}
 
-	description := strings.Join(args[2:], " ")
-	newTask := task.New(c.nextID(), description)
+	description := strings.TrimSpace(strings.Join(args[2:], " "))
+	if description == "" {
+		return fmt.Errorf("task description cannot be empty")
+	}
+
+	newTask, err := task.New(c.nextID(), description)
+	if err != nil {
+		return fmt.Errorf("failed to create task: %w", err)
+	}
+
 	c.tasks = append(c.tasks, newTask)
 
 	if err := c.storage.Save(c.tasks); err != nil {
@@ -88,13 +96,24 @@ func (c *CLI) handleUpdate(args []string) error {
 		return fmt.Errorf("invalid ID: %w", err)
 	}
 
-	description := strings.Join(args[3:], " ")
+	if id <= 0 {
+		return fmt.Errorf("task ID must be positive")
+	}
+
+	description := strings.TrimSpace(strings.Join(args[3:], " "))
+	if description == "" {
+		return fmt.Errorf("task description cannot be empty")
+	}
+
 	t, err := c.findTask(id)
 	if err != nil {
 		return err
 	}
 
-	t.UpdateDescription(description)
+	if err := t.UpdateDescription(description); err != nil {
+		return fmt.Errorf("failed to update task: %w", err)
+	}
+
 	if err := c.storage.Save(c.tasks); err != nil {
 		return fmt.Errorf("failed to save task: %w", err)
 	}
@@ -111,6 +130,10 @@ func (c *CLI) handleDelete(args []string) error {
 	id, err := strconv.Atoi(args[2])
 	if err != nil {
 		return fmt.Errorf("invalid ID: %w", err)
+	}
+
+	if id <= 0 {
+		return fmt.Errorf("task ID must be positive")
 	}
 
 	idx := c.findTaskIndex(id)
@@ -137,6 +160,10 @@ func (c *CLI) handleMarkInProgress(args []string) error {
 		return fmt.Errorf("invalid ID: %w", err)
 	}
 
+	if id <= 0 {
+		return fmt.Errorf("task ID must be positive")
+	}
+
 	t, err := c.findTask(id)
 	if err != nil {
 		return err
@@ -159,6 +186,10 @@ func (c *CLI) handleMarkDone(args []string) error {
 	id, err := strconv.Atoi(args[2])
 	if err != nil {
 		return fmt.Errorf("invalid ID: %w", err)
+	}
+
+	if id <= 0 {
+		return fmt.Errorf("task ID must be positive")
 	}
 
 	t, err := c.findTask(id)
